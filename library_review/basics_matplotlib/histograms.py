@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-daily_returns_df = pd.read_csv("../data/daily_returns.csv")
+daily_returns_df = pd.read_csv("../../data/daily_returns.csv")
 print(daily_returns_df)
 
 # pick APPL and plot its daily return histogrmas
