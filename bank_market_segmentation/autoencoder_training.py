@@ -116,4 +116,3 @@ pca_df = pd.concat([pca_df, pd.DataFrame({'cluster': labels})], axis=1)
 plt.figure(figsize=(10, 10))
 ax = sns.scatterplot(x='pca1', y='pca2', hue='cluster', data=pca_df, palette=['red', 'green', 'blue', 'yellow'])
 plt.show()
-
