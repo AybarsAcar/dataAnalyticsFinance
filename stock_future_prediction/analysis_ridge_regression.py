@@ -1,19 +1,11 @@
 import pandas as pd
-from copy import copy
-from scipy import stats
 import matplotlib.pyplot as plt
-import numpy as np
 import plotly.express as px
-import plotly.figure_factory as ff
-import plotly.graph_objs as go
-# SKLearn will be used to implement the machine learning algorithms
-from sklearn.linear_model import LinearRegression
-from sklearn.svm import SVR
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import r2_score
 from sklearn.preprocessing import MinMaxScaler
-# machine learning algorithms
-from tensorflow import keras
+from sklearn.linear_model import Ridge
+
+
+# TODO: FIX THE DATA LEAKAGE!!!
 
 
 # concatenate the date, stock price, and the volume data in 1 DataFrame object
@@ -132,7 +124,49 @@ Y_train = Y[:training_data_volume]
 
 # testing data
 X_test = X[training_data_volume:]
-Y_test = X[training_data_volume:]
+Y_test = Y[training_data_volume:]
 
-show_plot(X_train, 'Training Data')
-show_plot(X_test, 'Testing Data')
+# show_plot(X_train, 'Training Data')
+# show_plot(X_test, 'Testing Data')
+
+# Ridge Regression will be used
+# initialise the model
+# default alpha is 1
+regression_model = Ridge(alpha=0.7)
+
+# train the model
+regression_model.fit(X_train, Y_train)
+
+# test the model and calculate the accuracy
+lr_accuracy = regression_model.score(X_test, Y_test)
+print('Ridge Regression score: ', lr_accuracy)
+
+# pass along both training and testing data
+# we want to plot both
+predicted_prices = regression_model.predict(X)
+
+# append the predicted values into a lise
+# because predicted prices have an int[][] structure -> we flatten it
+predicted = []
+for i in predicted_prices:
+  predicted.append(i[0])
+
+# Append the close values to the list
+close = []
+for i in price_volume_target_scaled_df:
+  close.append(i[0])
+
+# Create a dataframe based on the dates in the individual stock data
+# so we can plot and work with it
+df_predicted = price_volume_target_df['Date'].to_frame()
+
+# Add the closing valued to the df_predicted
+df_predicted['Close'] = close
+
+# Add the predicted values as another column
+df_predicted['Prediction'] = predicted
+
+# print(df_predicted)
+
+
+interactive_plot(df_predicted, 'Actual vs Predictions')
