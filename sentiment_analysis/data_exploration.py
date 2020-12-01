@@ -23,6 +23,8 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.utils import to_categorical
 
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import confusion_matrix
 
 # TODO: Include WebScraping to increase the data
 
@@ -147,3 +149,43 @@ padded_test = pad_sequences(test_sequences, maxlen=29)
 # Convert y_train and y_test into a categorical 2D representation
 y_train_cat = to_categorical(y_train, 2)
 y_test_cat = to_categorical(y_test, 2)
+
+# Building Model in Sequential manner
+model = Sequential()
+model.add(Embedding(total_words, output_dim=512))
+model.add(LSTM(256))
+model.add(Dense(128, activation='relu'))  # relu = rectify linear unit
+model.add(Dropout(0.3))  # drops some random neurons to avoid overfitting
+# output layer
+model.add(Dense(2, activation='softmax'))  # softmax is a nice activation function for binary classification
+
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['acc'])
+# print(model.summary())
+
+# input -> padded_train
+# output -> y_train_cat
+model.fit(padded_train, y_train_cat, batch_size=32, validation_split=0.2, epochs=2)
+
+# predictions
+pred = model.predict(padded_test)
+print(pred)
+
+# convert the predictions matrix into 0's and 1's
+# argmax finds the arguement that gives the max value & used to find the class with the highest probability (pred)
+prediction = []
+for val in pred:
+  prediction.append(np.argmax(val))
+
+# do the same on the original dataset to print out the confusion matrix
+original = []
+for val in y_test_cat:
+  original.append(np.argmax(val))
+
+# accuracy score
+accuracy = accuracy_score(original, prediction)
+print(accuracy)
+
+# Confusion Matrix
+cm = confusion_matrix(original, prediction)
+sns.heatmap(cm, annot=True)
+plt.show()
